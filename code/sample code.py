@@ -11,7 +11,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 
-df = pd.read_csv('/Users/siheonjung/Desktop/psu/spring 2024/ds340w/1/preprocessed_CAC40.csv', parse_dates=['Date'])
+df = pd.read_csv('/Users/siheonjung/Desktop/psu/spring 2024/ds440/7/code/preprocessed_CAC40.csv', parse_dates=['Date'])
 
 def load_data(company, start, end):
     """
