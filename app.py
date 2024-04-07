@@ -33,11 +33,11 @@ tickers = pd.read_html(
     'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]
 tickers_names = tickers.Symbol.to_list()
 
-with st.sidebar:
-    selected = option.menu(
-        menu_
-    )
 
+with st.sidebar:
+    selected = option_menu("Main Menu", ["Home", 'Documentation'],
+        icons=['house', 'gear'], menu_icon="cast", default_index=1)
+    selected
 
 def user_input_features():
     #stock_choice = st.radio("Pick a Stock to see its information: ", [tickers_names])
