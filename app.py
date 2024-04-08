@@ -27,7 +27,6 @@ from tensorflow.keras.layers import Dense, Dropout, LSTM
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 
 
-
 yf.pdr_override()
 #st.set_option('deprecation.showfileUploaderEncoding', False)
 
@@ -365,11 +364,9 @@ if selected == "Individual S&P 500 Stock Metrics":
     st.plotly_chart(fig)
 
     st.header(f"LSTM Chart for {symbol}")
-    provide_LSTM_model(symbol, )
-
-    st.header(f"CNN-LSTM Chart for {symbol}")
-
+    provide_LSTM_model(symbol, period='1y')
     st.header(f"Stock Grades for {symbol}")
+
 if selected == "Glossary and Explanations":
     st.title("Glossary and Explanations test")
 if selected == "Home":
