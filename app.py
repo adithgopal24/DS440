@@ -6,6 +6,7 @@ from ta.utils import dropna
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import plotly.tools as tls
 import streamlit as st
 from datetime import date
 import datetime
@@ -25,6 +26,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+
 
 yf.pdr_override()
 #st.set_option('deprecation.showfileUploaderEncoding', False)
@@ -62,7 +64,7 @@ def basic_user_input_features():
 
 def advanced_user_input_features():
     pass
-def load_data(company, period = '1y'):
+def load_data(company, period = '3mo'):
     msft = yf.Ticker(company)
     hist = msft.history(period)
     hist.reset_index('Date', inplace=True)
@@ -70,8 +72,7 @@ def load_data(company, period = '1y'):
     hist.drop(columns=['Dividends', 'Stock Splits'])
     hist = hist[['Name', 'Date', 'Open', 'Close', 'High', 'Low', 'Volume']]
     return hist
-
-def provide_LSTM_model(company, period = '1y'):
+def provide_LSTM_model(company, period = '3mo'):
     data = load_data(company, period)
 
     # Normalize data
@@ -198,6 +199,10 @@ def provide_LSTM_model(company, period = '1y'):
 
     # Show the plot on the screen
     plt.show()
+    
+    mpl_fig = plt.gcf()
+    plotly_fig = tls.mpl_to_plotly(mpl_fig)
+    st.plotly_chart(plotly_fig)
 
     # Extract the last 'prediction_days' values from the model inputs
     real_data = [model_inputs[len(model_inputs) + 1 - prediction_days:len(model_inputs + 1), 0]]
@@ -244,62 +249,6 @@ def provide_LSTM_model(company, period = '1y'):
     corr, _ = pearsonr(actual_prices.reshape(-1), predicted_prices.reshape(-1))
     print(f"Correlation Coefficient: {corr}")
 
-
-def normalize(value, min_value, max_value):
-    """ Normalizes a value to a scale between 0 and 1, capping it at 1 """
-    normalized_value = (value - min_value) / (max_value - min_value)
-    return min(normalized_value, 1)  # Cap at 1
-
-def combine_pe_rsi_grade(pe_ratio, rsi, pe_weight, rsi_weight, pe_min, pe_max, rsi_min, rsi_max):
-    """ Combines normalized P/E ratio and RSI into a weighted score, capping the combined score at 1 """
-    normalized_pe = normalize(pe_ratio, pe_min, pe_max)
-    normalized_rsi = normalize(rsi, rsi_min, rsi_max)
-
-    combined_score = (pe_weight * normalized_pe) + (rsi_weight * normalized_rsi)
-    return min(combined_score, 1)  # Cap at 1
-def compute_RSI(data, window=14):
-    """ Computes the Relative Strength Index (RSI) for given data """
-    delta = data.diff(1)
-    gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
-    RS = gain / loss
-    return 100 - (100 / (1 + RS))
-
-def provide_stock_grade(ticker):
-    # Download stock data
-    data = load_data(ticker)
-
-    # Initialize DataFrame to store scores
-    df_scores = pd.DataFrame(index=ticker)
-
-    # Initialize minimum and maximum values for PE and RSI for normalization
-    pe_min, pe_max, rsi_min, rsi_max = 10, 20, 30, 70  # Adjust based on historical data
-
-    # Weights for P/E and RSI
-    pe_weight, rsi_weight = 0.5, 0.5
-
-    # Calculate the indicators and scores
-    # Get stock financial information
-    pe_ratio = ticker.info.get('trailingPE', np.nan)
-    rsi = compute_RSI(data['Adj Close'][ticker]).iloc[-1]
-
-    # Get the combined score for P/E ratio and RSI
-    df_scores.loc[ticker, 'Combined Score'] = combine_pe_rsi_grade(pe_ratio, rsi, pe_weight, rsi_weight, pe_min,
-                                                                   pe_max,
-                                                                   rsi_min, rsi_max)
-
-    # Apply some criteria to assign a stock grade based on the combined score
-    df_scores['Stock Grade'] = pd.cut(df_scores['Combined Score'],
-                                      bins=[0, 0.2, 0.4, 0.6, 0.8, float('inf')],
-                                      labels=['Potential Strong Sell', 'Potential Sell', 'Potential Hold',
-                                              'Potential Buy', 'Potential Strong Buy'],
-                                      include_lowest=True)
-
-    # Display the DataFrame with combined scores and stock grades
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.width', None)
-    pd.set_option('display.max_rows', None)
-    print(df_scores[['Combined Score', 'Stock Grade']])
 
 with st.sidebar:
     selected = option_menu("Main Menu", ["Home", 'Individual S&P 500 Stock Metrics', 'Glossary and Explanations'],
@@ -420,10 +369,8 @@ if selected == "Individual S&P 500 Stock Metrics":
     st.plotly_chart(fig)
 
     st.header(f"LSTM Chart for {symbol}")
-    #provide_LSTM_model(symbol, period='1y')
-
+    provide_LSTM_model(symbol, period='3mo')
     st.header(f"Stock Grades for {symbol}")
-    provide_stock_grade(symbol)
 
 if selected == "Glossary and Explanations":
     st.title("Glossary and Explanations test")
