@@ -314,9 +314,7 @@ if selected == "Individual S&P 500 Stock Metrics":
         ),
         visible=True,
     )
-    for column in df_trends.columns.to_list():
-        fig.add_trace(
-            go.Scatter(x=df_trends.index, y=df_trends[column], name=column, ))
+
     fig.update_layout(height=800, width=1000, xaxis_rangeslider_visible=False)
     st.plotly_chart(fig)
 
