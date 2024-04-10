@@ -128,7 +128,7 @@ def provide_LSTM_model(company, period = '3mo'):
         loss='mean_squared_error'
     )
     checkpointer = ModelCheckpoint(
-        filepath='weights_best.hdf5',
+        filepath='weights_best.hdf5.keras',
         verbose=2,
         save_best_only=True
     )
@@ -372,7 +372,14 @@ if selected == "Individual S&P 500 Stock Metrics":
     provide_LSTM_model(symbol, period='3mo')
     st.header(f"Stock Grades for {symbol}")
 
-if selected == "Glossary and Explanations":
+elif selected == "Glossary and Explanations":
     st.title("Glossary and Explanations test")
-if selected == "Home":
+elif selected == "Home":
     st.title("Home Dashboard")
+    st.subheader("Top Performing Stocks")
+    st.subheader("Create your own Stock Grade below: ")
+    input_1 = st.text_input("Input 1 test:")
+    input_2 = st.text_input("Input 2 test:")
+    #label_visibility = st.session_state.visibility,
+    #disabled = st.session_state.disabled,
+    #placeholder = st.session_state.placeholder
