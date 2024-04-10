@@ -63,8 +63,10 @@ def basic_user_input_features():
     return ticker, start_date, end_date, buying_price, balance
 
 def advanced_user_input_features():
-    pass
-def load_data(company, period = '3mo'):
+    periods = ['3mo', '6mo', '1y', 'ytd']
+    single_period = st.sidebar.radio('Select a Time Range for LSTM analysis:', periods)
+    return single_period
+def load_data(company, period):
     msft = yf.Ticker(company)
     hist = msft.history(period)
     hist.reset_index('Date', inplace=True)
@@ -72,7 +74,7 @@ def load_data(company, period = '3mo'):
     hist.drop(columns=['Dividends', 'Stock Splits'])
     hist = hist[['Name', 'Date', 'Open', 'Close', 'High', 'Low', 'Volume']]
     return hist
-def provide_LSTM_model(company, period = '3mo'):
+def provide_LSTM_model(company, period):
     data = load_data(company, period)
 
     # Normalize data
@@ -254,10 +256,14 @@ with st.sidebar:
     selected = option_menu("Main Menu", ["Home", 'Individual S&P 500 Stock Metrics', 'Glossary and Explanations'],
         icons=['house', 'graph-up-arrow', 'question'], menu_icon="cast", default_index=1)
 
+
 if selected == "Individual S&P 500 Stock Metrics":
     st.title("Individual S&P 500 Stock Metrics")
-    st.sidebar.header('User Input Parameters')
+    st.sidebar.header('Basic User Input Parameters')
     symbol, start, end, buying_price, balance = basic_user_input_features()
+    st.sidebar.header('LSTM Time Period')
+    period = advanced_user_input_features()
+
 
     start = pd.to_datetime(start)
     end = pd.to_datetime(end)
@@ -315,7 +321,7 @@ if selected == "Individual S&P 500 Stock Metrics":
         visible=True,
     )
 
-    fig.update_layout(height=800, width=1000, xaxis_rangeslider_visible=False)
+    fig.update_layout(height=800, width=1000, xaxis_rangeslider_visible=False, margin=dict(l=50, r=50, t=50, b=50))
     st.plotly_chart(fig)
 
     st.header(f"Trends for {symbol}")
@@ -367,7 +373,7 @@ if selected == "Individual S&P 500 Stock Metrics":
     st.plotly_chart(fig)
 
     st.header(f"LSTM Chart for {symbol}")
-    provide_LSTM_model(symbol, period='3mo')
+    provide_LSTM_model(symbol, period=period)
     st.header(f"Stock Grades for {symbol}")
 
 elif selected == "Glossary and Explanations":
