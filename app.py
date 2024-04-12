@@ -251,6 +251,67 @@ def provide_LSTM_model(company, period):
     corr, _ = pearsonr(actual_prices.reshape(-1), predicted_prices.reshape(-1))
     print(f"Correlation Coefficient: {corr}")
 
+# Define normalization function
+def normalize(value, min_value, max_value):
+    """ Normalizes a value to a scale between 0 and 1, capping it at 1 """
+    normalized_value = (value - min_value) / (max_value - min_value)
+    return min(normalized_value, 1)  # Cap at 1
+
+
+# Define function to combine P/E ratio and RSI scores
+def combine_pe_rsi_grade(pe_ratio, rsi, pe_weight, rsi_weight, pe_min, pe_max, rsi_min, rsi_max):
+    """ Combines normalized P/E ratio and RSI into a weighted score, capping the combined score at 1 """
+    normalized_pe = normalize(pe_ratio, pe_min, pe_max)
+    normalized_rsi = normalize(rsi, rsi_min, rsi_max)
+
+    combined_score = (pe_weight * normalized_pe) + (rsi_weight * normalized_rsi)
+    return min(combined_score, 1)  # Cap at 1
+
+
+# Function to compute RSI
+def compute_RSI(data, window=14):
+    """ Computes the Relative Strength Index (RSI) for given data """
+    delta = data.diff(1)
+    gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
+    rs = gain / loss
+    eq = 100 - (100 / (1 + rs))
+    return eq
+
+def compute_most_popular_stock_scores():
+    popular_tickers = ['MSFT', 'AAPL', 'TSLA', 'META']
+    yf_data = yf.download(popular_tickers, start="2019-01-01", end="2023-12-31")
+    df_scores = pd.DataFrame(index=popular_tickers)
+    # Initialize minimum and maximum values for PE and RSI for normalization
+    pe_min, pe_max, rsi_min, rsi_max = 10, 20, 30, 70  # Adjust based on historical data
+
+    # Weights for P/E and RSI
+    pe_weight, rsi_weight = 0.5, 0.5
+
+    # Calculate the indicators and scores
+    for ticker in popular_tickers:
+        stock = yf.Ticker(ticker)
+        # Get stock financial information
+        pe_ratio = stock.info.get('trailingPE', np.nan)
+        rsi = compute_RSI(yf_data['Adj Close'][ticker]).iloc[-1]
+
+        # Get the combined score for P/E ratio and RSI
+        df_scores.loc[ticker, 'Stock Grade'] = combine_pe_rsi_grade(pe_ratio, rsi, pe_weight, rsi_weight, pe_min,
+                                                                       pe_max,
+                                                                       rsi_min, rsi_max)
+    # Apply some criteria to assign a stock grade based on the combined score
+    df_scores['Stock Action Labels'] = pd.cut(df_scores['Stock Grade'],
+                                      bins=[0, 0.2, 0.4, 0.6, 0.8, float('inf')],
+                                      labels=['Potential Strong Sell', 'Potential Sell', 'Potential Hold',
+                                              'Potential Buy', 'Potential Strong Buy'],
+                                      include_lowest=True)
+
+    # Display the DataFrame with combined scores and stock grades
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', None)
+    pd.set_option('display.max_rows', None)
+    return df_scores[['Stock Grade', 'Stock Action Labels']]
+
 
 with st.sidebar:
     selected = option_menu("Main Menu", ["Home", 'Individual S&P 500 Stock Metrics', 'Glossary and Explanations'],
@@ -381,6 +442,8 @@ elif selected == "Glossary and Explanations":
 elif selected == "Home":
     st.title("Home Dashboard")
     st.subheader("Top Performing Stocks")
+    most_popular_scores = compute_most_popular_stock_scores()
+    st.table(most_popular_scores)
     st.subheader("Create your own Stock Grade below: ")
     input_1 = st.text_input("Input 1 test:")
     input_2 = st.text_input("Input 2 test:")
