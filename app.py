@@ -312,6 +312,39 @@ def compute_most_popular_stock_scores():
     pd.set_option('display.max_rows', None)
     return df_scores[['Stock Grade', 'Stock Action Labels']]
 
+def compute_single_stock_score(input):
+    yf_data = yf.download(input, start="2019-01-01", end="2023-12-31")
+    #input_type = [{input}]
+    df_scores = pd.DataFrame(index=[input])
+    # Initialize minimum and maximum values for PE and RSI for normalization
+    pe_min, pe_max, rsi_min, rsi_max = 10, 20, 30, 70  # Adjust based on historical data
+
+    # Weights for P/E and RSI
+    pe_weight, rsi_weight = 0.5, 0.5
+
+    stock = yf.Ticker(input)
+    # Get stock financial information
+    pe_ratio = stock.info.get('trailingPE', np.nan)
+    rsi = compute_RSI(yf_data['Adj Close']).iloc[-1]
+
+    # Get the combined score for P/E ratio and RSI
+    df_scores.loc[input, 'Stock Grade'] = combine_pe_rsi_grade(pe_ratio, rsi, pe_weight, rsi_weight, pe_min,
+                                                                   pe_max,
+                                                                   rsi_min, rsi_max)
+    # Apply some criteria to assign a stock grade based on the combined score
+    df_scores['Stock Action Labels'] = pd.cut(df_scores['Stock Grade'],
+                                      bins=[0, 0.2, 0.4, 0.6, 0.8, float('inf')],
+                                      labels=['Potential Strong Sell', 'Potential Sell', 'Potential Hold',
+                                              'Potential Buy', 'Potential Strong Buy'],
+                                      include_lowest=True)
+
+    # Display the DataFrame with combined scores and stock grades
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', None)
+    pd.set_option('display.max_rows', None)
+    print('test')
+    return df_scores[['Stock Grade', 'Stock Action Labels']]
+
 
 with st.sidebar:
     selected = option_menu("Main Menu", ["Home", 'Individual S&P 500 Stock Metrics', 'Glossary and Explanations'],
@@ -436,6 +469,8 @@ if selected == "Individual S&P 500 Stock Metrics":
     st.header(f"LSTM Chart for {symbol}")
     provide_LSTM_model(symbol, period=period)
     st.header(f"Stock Grades for {symbol}")
+    string_symbol = str(symbol)
+    st.markdown(compute_single_stock_score(string_symbol))
 
 elif selected == "Glossary and Explanations":
     st.title("Glossary and Explanations test")
@@ -447,6 +482,7 @@ elif selected == "Home":
     st.subheader("Create your own Stock Grade below: ")
     input_1 = st.text_input("Input 1 test:")
     input_2 = st.text_input("Input 2 test:")
+    input_3 = st.text_input("Input 3 test:")
     #label_visibility = st.session_state.visibility,
     #disabled = st.session_state.disabled,
     #placeholder = st.session_state.placeholder
