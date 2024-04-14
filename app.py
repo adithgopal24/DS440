@@ -74,6 +74,8 @@ def load_data(company, period):
     hist.drop(columns=['Dividends', 'Stock Splits'])
     hist = hist[['Name', 'Date', 'Open', 'Close', 'High', 'Low', 'Volume']]
     return hist
+
+
 def provide_LSTM_model(company, period):
     data = load_data(company, period)
 
@@ -201,7 +203,7 @@ def provide_LSTM_model(company, period):
 
     # Show the plot on the screen
     plt.show()
-    
+
     mpl_fig = plt.gcf()
     plotly_fig = tls.mpl_to_plotly(mpl_fig)
     st.plotly_chart(plotly_fig)
@@ -250,6 +252,7 @@ def provide_LSTM_model(company, period):
     # Calculate Correlation Coefficient (better closer to 1)
     corr, _ = pearsonr(actual_prices.reshape(-1), predicted_prices.reshape(-1))
     print(f"Correlation Coefficient: {corr}")
+
 
 # Define normalization function
 def normalize(value, min_value, max_value):
@@ -300,7 +303,7 @@ def compute_most_popular_stock_scores():
                                                                        pe_max,
                                                                        rsi_min, rsi_max)
     # Apply some criteria to assign a stock grade based on the combined score
-    df_scores['Stock Action Labels'] = pd.cut(df_scores['Stock Grade'],
+    df_scores['Stock Action Label'] = pd.cut(df_scores['Stock Grade'],
                                       bins=[0, 0.2, 0.4, 0.6, 0.8, float('inf')],
                                       labels=['Potential Strong Sell', 'Potential Sell', 'Potential Hold',
                                               'Potential Buy', 'Potential Strong Buy'],
@@ -310,7 +313,7 @@ def compute_most_popular_stock_scores():
     pd.set_option('display.max_columns', None)
     pd.set_option('display.width', None)
     pd.set_option('display.max_rows', None)
-    return df_scores[['Stock Grade', 'Stock Action Labels']]
+    return df_scores[['Stock Grade', 'Stock Action Label']]
 
 def compute_single_stock_score(input):
     yf_data = yf.download(input, start="2019-01-01", end="2023-12-31")
@@ -342,9 +345,29 @@ def compute_single_stock_score(input):
     pd.set_option('display.max_columns', None)
     pd.set_option('display.width', None)
     pd.set_option('display.max_rows', None)
-    print('test')
     return df_scores[['Stock Grade', 'Stock Action Labels']]
 
+def compute_custom_stock_score(pe_ratio, rsi):
+    pe_min, pe_max, rsi_min, rsi_max = 10, 20, 30, 70  # Adjust based on historical data
+    pe_weight, rsi_weight = 0.5, 0.5
+    stock_grade = combine_pe_rsi_grade(pe_ratio, rsi, pe_weight, rsi_weight, pe_min,
+                                                               pe_max,
+                                                               rsi_min, rsi_max)
+    label = ''
+    if stock_grade <= 0.2:
+        label = 'Potential Strong Sell'
+    elif stock_grade <= 0.4:
+        label = 'Potential Sell'
+    elif stock_grade <= 0.6:
+        label = 'Potential Hold'
+    elif stock_grade <= 0.8:
+        label = 'Potential Buy'
+    else:
+        label = 'Potential Strong Buy'
+
+    output_1 = f"Stock Grade: {stock_grade}"
+    output_2 = f"Stock Action Label: {label}"
+    return output_1, output_2
 
 with st.sidebar:
     selected = option_menu("Main Menu", ["Home", 'Individual S&P 500 Stock Metrics', 'Glossary and Explanations'],
@@ -470,19 +493,59 @@ if selected == "Individual S&P 500 Stock Metrics":
     provide_LSTM_model(symbol, period=period)
     st.header(f"Stock Grades for {symbol}")
     string_symbol = str(symbol)
-    st.markdown(compute_single_stock_score(string_symbol))
+    st.table(compute_single_stock_score(string_symbol))
 
 elif selected == "Glossary and Explanations":
-    st.title("Glossary and Explanations test")
+    st.title("Glossary and Explanations")
+    st.write("Utilize our own Glossary and Explanations Page to learn more about the S&P 500 market and all sorts of jargon, metrics, and formulas used on our website!")
+    st.header("Glossary")
+    st.write("""**LSTM** :""")
+    st.write("""**P/E Ratio**: """)
+    st.write("""**RSI**: """)
+    st.write("""**SMA**""")
+    st.write("""**EMA**""")
+    st.header("What data was used?")
+    st.write("Our dataset was obtained from Yahoo Finance, utilizing the Yahoo Finance API in Python to retrieve the latest data available for all S&P 500 stocks. A historical dataset, from 2019 to the current day, was utilized for our models.")
+
+    st.header("How did we produce our Stock Grades?")
+
+    st.header("What do our Stock Grades mean, and why are they important?")
+
+    st.header("What is LSTM? How did we utilize it to predict stock prices?")
+    st.write("LSTM is a____")
+    st.write("Why use LSTM?")
+
+
+    st.header("How do you read a Candlestick chart?")
+    st.header("What do each of the different Trends mean?")
+    st.header("What do each of the different Momentum values mean?")
+
+
 elif selected == "Home":
     st.title("Home Dashboard")
     st.subheader("Top Performing Stocks")
     most_popular_scores = compute_most_popular_stock_scores()
     st.table(most_popular_scores)
     st.subheader("Create your own Stock Grade below: ")
-    input_1 = st.text_input("Input 1 test:")
-    input_2 = st.text_input("Input 2 test:")
-    input_3 = st.text_input("Input 3 test:")
+    try:
+        input_1 = int(st.text_input("Insert a P/E Ratio between the values of 10-20:"))
+        input_2 = int(st.text_input("Insert an RSI between the values of 30-70:"))
+        if not input_1:
+            print(st.warning("Please enter a number for P/E Ratio"))
+        if not input_2:
+            print(st.warning("Please enter a number for RSI"))
+        if input_1 < 10 or input_1 > 20:
+            print(st.warning("Please enter a number between 10 and 20 for the P/E Ratio"))
+        if input_2 < 30 or input_2 > 70:
+            print(st.warning("Please enter a number between 30 and 70 for the RSI"))
+        submit = st.button('Generate Stock Grade')
+        st.subheader("Created Stock Grade:")
+        if submit:
+            st.markdown(compute_custom_stock_score(input_1, input_2))
+    except:
+        # Prevent the error from propagating into your Streamlit app.
+        pass
+
     #label_visibility = st.session_state.visibility,
     #disabled = st.session_state.disabled,
     #placeholder = st.session_state.placeholder
