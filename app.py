@@ -370,7 +370,7 @@ def compute_custom_stock_score(pe_ratio, rsi):
     return output_1, output_2
 
 with st.sidebar:
-    selected = option_menu("Main Menu", ["Home", 'Individual S&P 500 Stock Metrics', 'Glossary and Explanations'],
+    selected = option_menu("Main Menu", ["Home", 'Individual S&P 500 Stock Metrics', 'Definitions and Explanations'],
         icons=['house', 'graph-up-arrow', 'question'], menu_icon="cast", default_index=1)
 
 
@@ -496,15 +496,24 @@ if selected == "Individual S&P 500 Stock Metrics":
     string_symbol = str(symbol)
     st.table(compute_single_stock_score(string_symbol))
 
-elif selected == "Glossary and Explanations":
-    st.title("Glossary and Explanations")
+elif selected == "Definitions and Explanations":
+    st.title("Definitions and Explanations")
     st.write("Utilize our own Glossary and Explanations Page to learn more about the S&P 500 market and all sorts of jargon, metrics, and formulas used on our website!")
-    st.header("Glossary")
+    st.header("Definitions")
     st.write("""**LSTM** :""")
     st.write("""**P/E Ratio**: """)
     st.write("""**RSI**: """)
     st.write("""**SMA**: """)
     st.write("""**EMA**: """)
+    st.write("""**ROC**: """)
+    st.write("""**TSI**: """)
+    st.write("""**UO**: """)
+    st.write("""**Stoch**: """)
+    st.write("""**Stoch Signal**: """)
+    st.write("""**WR**: """)
+    st.write("""**AO**""")
+    st.write("""**KAMA**: """)
+
     st.header("What data was used?")
     st.write("Our dataset was obtained from Yahoo Finance, utilizing the Yahoo Finance API in Python to retrieve the latest data available for all S&P 500 stocks, updating every business day (M-F). A historical dataset, from 2019 to the current day, was utilized for our models.")
 
@@ -518,9 +527,14 @@ elif selected == "Glossary and Explanations":
     st.header("What is LSTM? How did we utilize it to predict stock prices?")
     st.write("LSTM (Long short-term memory) is a machine learning model that utilizes recurrent neural networks. LSTMs predict stock prices by learning from historical data, utilizing their unique gates to manage information flow and retain relevant patterns over time. They adjust their weights based on prediction errors, improving accuracy with more data. This ability to learn and remember long-term dependencies in stock price trends, while dynamically adapting to new information, makes LSTMs effective for financial forecasting. We decided to use an LSTM model to predict stock prices because of its ability to handle multi-input data with time steps")
     st.write(" ")
-    st.write("Why use LSTMs?")
+    st.write("**Why use LSTMs?**")
     st.write("LSTMs excel in stock price prediction due to their ability to remember information for long periods and handle the complexities of time-series data, like stock prices. Their architecture allows them to capture long-term dependencies and avoid the vanishing gradient problem, making them superior to traditional models for understanding trends and patterns that span various time frames.")
-    st.write("What are the strengths of LSTM?")
+    st.write("**How do LSTMs work?**")
+    st.write("LSTMs predict stock prices by learning from historical data, utilizing their unique gates to manage information flow and retain relevant patterns over time. They adjust their weights based on prediction errors, improving accuracy with more data. This ability to learn and remember long-term dependencies in stock price trends, while dynamically adapting to new information, makes LSTMs effective for financial forecasting.")
+    st.write("**What are the strengths of LSTMs?**")
+    st.write("The primary strengths of LSTM models include their long-term memory capability, flexibility in handling sequences of variable lengths, and robustness to long gaps in data. These features make LSTMs particularly suited for applications like stock price prediction, where understanding long-term patterns and dealing with time-series data are crucial for accurate forecasting.")
+    st.write("**What are the weaknesses of LSTMs?**")
+    st.write("LSTMs come with challenges, such as their computational complexity, which requires significant resources and time for training. They also have a higher risk of overfitting due to their ability to learn detailed patterns, and finding the optimal set of hyperparameters can be difficult, making the model-tuning process challenging.")
 
     st.header("How do you read a Candlestick chart?")
     st.write("For each stock, we have produced a Candlestick chart that shows a stock's opening and closing prices, along with its highest and lowest price of the day. Each vertical bar may be colored green if the stock's closing price was higher than its opening price, or may be colored red if the stock's closing price was lower than its opening price.")
@@ -528,11 +542,17 @@ elif selected == "Glossary and Explanations":
     st.write("A short upper shadow on a green bar indicates the closing price was similar to the highest price of the day. ")
     st.write("The visualizations of a Candlestick chart can be utilized by an investor to see how a stock has been performing, with emphasis on the colors and size of the bars to help an investor see its pricing behavior easier.")
     st.write("For example, using a Candlestick chart, it is easier to see if a stock's price will fall (Bearish behavior) or rise over time (Bullish behavior). Generally, a stock can be seen as Bearish if there is a large red bar that is directly to the right of a much smaller green bar. This indicates the stock's price may continue to fall, so an investor should sell the stock.")
+    st.image('Bearish.png', caption='A Bearish Candlestick chart')
     st.write("The opposite is true for Bullish stocks, where a large green bar is directly to the right of a much smaller red bar. This indicuates that a stock's price may continue to increase, so an investor should buy the stock.")
+    st.image('Bullish.png', caption='A Bullish Candlestick chart')
     st.write("For more information about Candlestick charts, see this [link](https://www.investopedia.com/trading/candlestick-charting-what-is-it/)")
 
-    st.header("What do each of the different Trends mean?")
-    st.header("What do each of the different Momentum values mean?")
+    st.header("How can the Trends charts be used?")
+    st.write("StockGrader.io's Trend charts can be used to complement the provided Candlestick chart for a particular stock. The Fast SMA trend value is one with generally a smaller period of time, where the moving average is generally calculated between 10-50 days. The Slow SMA trend value generally calulates moving averages from 50-200 days. People looking to find more recent price changes/trends utilize Fast SMA, while long-term traders look to utilize Slow SMA, since it is can find long-term trends, and isn't as sensitive to quick, short spikes or drops of price. ")
+    st.write("Similar to SMA, the Fast EMA trend value utilizes a shorter period of time, generally about 12-26 periods. Slow EMA utilizes anywhere from 50-200 periods. Slow EMA generally provides more weight to older price data, compared to new ones. This makes Slow EMA more stable long-term, but does not pick up on quick spikes/drops of price. Like SMA, long-term investors would more likly utilize Slow EMA compared to Fast EMA. ")
+
+    st.header("How can the Momentum charts be used?")
+    st.write("StockGrader.io has created numerous Momentum Charts using a variety of market-performance variables, such as SO and ROC, among others. Each of these momentum indicators can be used to see how a stock is trending, and if the trend is weak or strong. Many of these variables utilize both current and historic prices to produce their indicators.  ")
 
 
 elif selected == "Home":
