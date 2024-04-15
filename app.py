@@ -51,7 +51,7 @@ def basic_user_input_features():
     end_date = st.sidebar.text_input("End Date", f'{today_val}')
     start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
     end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
-    buying_price = st.sidebar.number_input("Buying Price", value=0.2000, step=0.0001)
+    buying_price = st.sidebar.number_input("Buying Price (USD)", value=0.2000, step=0.0001)
     balance = st.sidebar.number_input("Quantity", value=0.0, step=0.0001)
     #file_buffer = st.sidebar.file_uploader("Choose a .csv or .xlxs file\n 2 columns are expected 'rate' and 'price'", type=['xlsx','csv'])
     if start_date_obj > today_val:
@@ -438,7 +438,8 @@ if selected == "Individual S&P 500 Stock Metrics":
         visible=True,
     )
 
-    fig.update_layout(height=800, width=1000, xaxis_rangeslider_visible=False, margin=dict(l=50, r=50, t=50, b=50))
+    fig.update_layout(height=800, width=1000, xaxis_rangeslider_visible=False, margin=dict(l=50, r=50, t=50, b=50),
+                      yaxis_title = 'USD')
     st.plotly_chart(fig)
 
     st.header(f"Trends for {symbol}")
@@ -502,21 +503,34 @@ elif selected == "Glossary and Explanations":
     st.write("""**LSTM** :""")
     st.write("""**P/E Ratio**: """)
     st.write("""**RSI**: """)
-    st.write("""**SMA**""")
-    st.write("""**EMA**""")
+    st.write("""**SMA**: """)
+    st.write("""**EMA**: """)
     st.header("What data was used?")
-    st.write("Our dataset was obtained from Yahoo Finance, utilizing the Yahoo Finance API in Python to retrieve the latest data available for all S&P 500 stocks. A historical dataset, from 2019 to the current day, was utilized for our models.")
+    st.write("Our dataset was obtained from Yahoo Finance, utilizing the Yahoo Finance API in Python to retrieve the latest data available for all S&P 500 stocks, updating every business day (M-F). A historical dataset, from 2019 to the current day, was utilized for our models.")
 
-    st.header("How did we produce our Stock Grades?")
-
-    st.header("What do our Stock Grades mean, and why are they important?")
+    st.header("How did we produce our Stock Grades? What do these Grades mean?")
+    st.write("StockGrader.io calculates a composite, numeric Stock Grade for each stock by analyzing and combining the stock's P/E ratio and RSI. These two indicators are used because these two values ​​are the two most important factors determining a stock’s performance, and their weighted distribution is equal in our formula. The process of developing a Stock Grade utilizes data standardization, weight allocation, and composite score calculations to provide investors with stock assessments based on financial and market momentum indicators. Our Stock Grades are designed to help investors easily understand how a stock is currently performing, at the moment.")
+    st.write(" ")
+    st.write("Along with a Stock Grade, each stock will have a “Stock Action Label”, which indicates what a long-term investor should likely do with the respective stock at the current moment. The labels range from “Potential Strong Sell”, up to “Potential Strong Buy”, indicating if a person should sell, hold, or buy a stock at the moment.")
+    st.write(" ")
+    st.write("*Note:* Certain stocks may not have a Stock Grade for the time being due to unavailable P/E Ratio or RSI metrics. This is shown in the “Individual S&P 500 Stock Metrics page, where a stock’s Stock Grade may be shown as “N/A”.")
 
     st.header("What is LSTM? How did we utilize it to predict stock prices?")
-    st.write("LSTM is a____")
-    st.write("Why use LSTM?")
-
+    st.write("LSTM (Long short-term memory) is a machine learning model that utilizes recurrent neural networks. LSTMs predict stock prices by learning from historical data, utilizing their unique gates to manage information flow and retain relevant patterns over time. They adjust their weights based on prediction errors, improving accuracy with more data. This ability to learn and remember long-term dependencies in stock price trends, while dynamically adapting to new information, makes LSTMs effective for financial forecasting. We decided to use an LSTM model to predict stock prices because of its ability to handle multi-input data with time steps")
+    st.write(" ")
+    st.write("Why use LSTMs?")
+    st.write("LSTMs excel in stock price prediction due to their ability to remember information for long periods and handle the complexities of time-series data, like stock prices. Their architecture allows them to capture long-term dependencies and avoid the vanishing gradient problem, making them superior to traditional models for understanding trends and patterns that span various time frames.")
+    st.write("What are the strengths of LSTM?")
 
     st.header("How do you read a Candlestick chart?")
+    st.write("For each stock, we have produced a Candlestick chart that shows a stock's opening and closing prices, along with its highest and lowest price of the day. Each vertical bar may be colored green if the stock's closing price was higher than its opening price, or may be colored red if the stock's closing price was lower than its opening price.")
+    st.write("At the top/bottom of a vertical bar, there may be a line sticking out of it, called a Shadow. If a Shadow is coming out of the top of a vertical bar, it is called an Upper Shadow, while a line coming out of the bottom of the vertical bar is called a Lower Shadow.")
+    st.write("A short upper shadow on a green bar indicates the closing price was similar to the highest price of the day. ")
+    st.write("The visualizations of a Candlestick chart can be utilized by an investor to see how a stock has been performing, with emphasis on the colors and size of the bars to help an investor see its pricing behavior easier.")
+    st.write("For example, using a Candlestick chart, it is easier to see if a stock's price will fall (Bearish behavior) or rise over time (Bullish behavior). Generally, a stock can be seen as Bearish if there is a large red bar that is directly to the right of a much smaller green bar. This indicates the stock's price may continue to fall, so an investor should sell the stock.")
+    st.write("The opposite is true for Bullish stocks, where a large green bar is directly to the right of a much smaller red bar. This indicuates that a stock's price may continue to increase, so an investor should buy the stock.")
+    st.write("For more information about Candlestick charts, see this [link](https://www.investopedia.com/trading/candlestick-charting-what-is-it/)")
+
     st.header("What do each of the different Trends mean?")
     st.header("What do each of the different Momentum values mean?")
 
