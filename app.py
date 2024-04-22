@@ -498,21 +498,36 @@ if selected == "Individual S&P 500 Stock Metrics":
 
 elif selected == "Definitions and Explanations":
     st.title("Definitions and Explanations")
-    st.write("Utilize our own Glossary and Explanations Page to learn more about the S&P 500 market and all sorts of jargon, metrics, and formulas used on our website!")
+    st.write("Utilize our own Defintions and Explanations Page to learn more about the S&P 500 market and all sorts of jargon, metrics, and formulas used on our website!")
     st.header("Definitions")
-    st.write("""**LSTM** :""")
-    st.write("""**P/E Ratio**: """)
-    st.write("""**RSI**: """)
-    st.write("""**SMA**: """)
-    st.write("""**EMA**: """)
-    st.write("""**ROC**: """)
-    st.write("""**TSI**: """)
-    st.write("""**UO**: """)
-    st.write("""**Stoch**: """)
-    st.write("""**Stoch Signal**: """)
-    st.write("""**WR**: """)
-    st.write("""**AO**""")
-    st.write("""**KAMA**: """)
+    st.write("""**P/E Ratio**: The price-to-earnings ratio is a widely used metric in the stock market that measures a company’s current stock price relative to its earnings per share. Stocks with higher P/E ratios are often perceived as possibly overvalued, as its stock price is high compared to their earnings. Conversely, investors might look for stocks with lower P/E ratios as potential buying opportunities, as they could be seen as undervalued. """)
+    st.write("""**RSI**: The Relative Strength Index is a technical analysis indicator used to measure the speed and change of price movements. It is intended to identify whether a stock is potentially overbought or oversold, suggesting a possible reversal point in the stock’s price. The RSI is typically displayed as an oscillator and can have a reading between 0 to 100. Normally, an RSI reading above 70 suggests that a stock may be overbought, indicating a potential sell. And an RSI reading below 30 indicates that a stock may be oversold. If a stock’s price is making new highs but the RSI is not, it may indicate a lack of momentum and a potential reversal""")
+    st.write("""**SMA**: The Simple Moving Average is a technical analysis tool used to smooth out price data by creating a constantly updated average price. The average can be computed over a specific period of days, such as 20 or 50 days. When a stock's price is above its SMA, it often indicates an upward trend. Conversely, if the price is below its SMA, this typically signals a downward trend.""")
+    st.write("""**EMA**: The Exponential Moving Average is a type of moving average used in technical analysis to measure the trends over a set period. The EMA differs from SMA in that it places a greater emphasis on recent price data. If the price is above the EMA, it is generally considered to be in an uptrend, suggesting buying opportunities. If the price is below the EMA, it is often considered to be in a downtrend, indicating potential selling or short-selling opportunities.""")
+    st.write("""**ROC**: Representing Rate of Change, this indicator measures the percentage change in price between the current price and the price a certain number of periods ago. The ROC is used to identify momentum or trend reversals.
+As a momentum indicator, it reflects the velocity of price changes. 
+If ROC is rising, it indicates an increase in momentum, suggesting that prices are moving up at a faster rate. Conversely, if ROC is falling, it means the momentum is decreasing and prices might start dropping or stabilizing.
+""")
+    st.write("""**TSI**: The True Strength Index is a momentum oscillator that helps identify trends and reversals. It combines moving averages of the underlying asset’s price momentum, typically smoothing price movements to filter out noise and better highlight trends.
+It is particularly useful in identifying overbought and oversold conditions. 
+A high positive TSI indicates strong upward momentum, while a high negative TSI suggests strong downward momentum. The crossing of the TSI line over its signal line can indicate potential buy or sell opportunities based on changes in momentum.
+""")
+    st.write("""**UO**: The Ultimate Oscillator, developed by Larry Williams, combines short, medium, and long-term market trends into one value. It aims to reduce volatility and false signaling typical in many oscillators considering only one time frame.
+This indicator combines multiple time frames, which helps smooth out the signals for momentum.
+When the UO rises above certain threshold levels, it suggests increasing buying momentum. Conversely, falling below certain levels indicates increasing selling momentum. Divergences between the UO and price action can also indicate potential reversals.
+""")
+    st.write("""**Stoch**: Stoch compares an asset's closing price to a range of its prices over a certain period. It is used to generate overbought and oversold trading signals.
+It is used to predict price turning points by comparing a commodity's closing price to its price range over a given time period.""")
+    st.write("""**Stoch Signal**: Often, Stoch Signal refers to the signal line in the stochastic oscillator. The signal line is a moving average of the stochastic oscillator value itself and is used to interpret buy and sell signals more clearly.
+The signal line in the stochastic oscillator, usually a moving average of the stochastic values, helps confirm momentum shifts.
+""")
+    st.write("""**WR**: The Williams %R is a momentum indicator that measures overbought and oversold levels. It is similar to the stochastic oscillator but inverted. This indicator compares a stock's closing price to the high-low range over a specific period, typically 14 days. This indicator is similar to the stochastic oscillator and is particularly useful for spotting overbought and oversold levels.""")
+    st.write("""**AO**: Developed by Bill Williams, the Awesome Oscillator calculates the difference between a 34 period and a 5 period simple moving averages. The averages are based on the midpoints of the bars (H+L)/2 instead of closing prices. The AO is used to gauge market momentum.
+This indicator captures market momentum by calculating the difference between the moving averages over two different periods. 
+""")
+    st.write("""**KAMA**: Kaufman's Adaptive Moving Average was developed by Perry Kaufman and adapts to the price movement of an asset in an attempt to reduce noise and highlight significant trends more clearly. It adjusts its responsiveness based on the volatility of the prices.
+Unlike standard moving averages, KAMA adjusts its sensitivity to price movements.
+""")
 
     st.header("What data was used?")
     st.write("Our dataset was obtained from Yahoo Finance, utilizing the Yahoo Finance API in Python to retrieve the latest data available for all S&P 500 stocks, updating every business day (M-F). A historical dataset, from 2019 to the current day, was utilized for our models.")
@@ -557,7 +572,7 @@ elif selected == "Definitions and Explanations":
 
 elif selected == "Home":
     st.title("Home Dashboard")
-    st.subheader("Top Performing Stocks")
+    st.subheader("Popular S&P 500 Stock Grades")
     most_popular_scores = compute_most_popular_stock_scores()
     st.table(most_popular_scores)
     st.subheader("Create your own Stock Grade below: ")
